@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--    <script src="basic.js"></script>-->
+    <!--BootStrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!--Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css" />
+    <!--    폰트-->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300&display=swap" rel="stylesheet">
+
+    <title>🖋 작성하기</title>
+
+</head>
+
+<style>
+    * {
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+    .background{
+        background-image: url("https://images.unsplash.com/photo-1534996858221-380b92700493?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2231&q=80");
+    }
+    .top{
+        /*height: 70px;*/
+        /*margin-bottom: 20px;*/
+        text-align: center;
+        vertical-align: middle;
+        padding: 70px;
+        /*font-size: 60px;*/
+        color: whitesmoke;
+    }
+    .btn-go-home{
+        float: left;
+        width: 60px;
+        height: 60px;
+        background-color: #545673;
+        border: none;
+        color: white;
+        text-align: center;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        box-shadow: 3px 3px 2px #3d3d47;
+    }
+
+    .btn-comment-send{
+        margin-left: 30px;
+        cursor: pointer;
+    }
+
+    .content-card{
+        width: 80%;
+        height: 80%;
+        margin: 30px auto 50px auto;
+    }
+
+    .comments-card{
+        width: 80%;
+        height: 80%;
+        margin: 30px auto 50px auto;
+    }
+
+
+    .btn_save{
+        background-color: #545673;
+        color: white;
+        cursor: pointer;
+        border: none;
+        box-shadow: 3px 3px 2px #3d3d47;
+    }
+
+
+    .modal-header{
+        background-color: #ababab;
+        color: #dc143c;
+    }
+
+    .modal-body{
+        background-color: rgb(233, 234, 242);
+    }
+    .modal-footer{
+        background-color: rgb(233, 234, 242);
+    }
+
+    .modal-text{
+        font-weight: 900;
+    }
+    .form-control{
+        background-color: rgb(217, 218, 222);
+    }
+
+    .modalcontenttext{
+        margin-bottom:10px;
+    }
+
+    .comment-line-form{
+        /*border: solid;*/
+        /*border-color: lightgoldenrodyellow;*/
+        /*border-width: 1px;*/
+        margin-bottom: 20px;
+    }
+    .contextbox{
+        margin: 15px 5px 0px 5px;
+        background-color: rgb(252, 251, 225);
+        width: 80%;
+        /*height: 450px;*/
+        padding: 10px;
+    }
+
+    .comment-writer{
+        color: #dc143c;
+        margin-right: 80px;
+        margin-left: 20px;
+        font-weight: bolder;
+    }
+
+    .comment-input{
+        display : none;
+    }
+
+    .comment-time{
+        padding-left: 40px;
+        float: right;
+        text-align: left;
+        color: grey;
+    }
+
+    .comment-btn{
+        float: right;
+    }
+    .hide{
+        visibility: hidden;
+    }
+
+</style>
+
+<script th:inline="javascript">
+
+
+    function isValidId(id) {
+        if (id === "") {
+            return false;
+        }
+    }
+
+    function isValidContent(context){
+        if (context !== ""){
+            return true;
+        } else{
+            alert('댓글 내용을 입력해주세요');
+            return false;
+        }
+    }
+
+    function notYet(){
+        alert('아직 구현 안 됐어요! 열시미 코딩하고 있어요!');
+    }
+
+    $(document).ready(function () {
+        $('#content-card').empty();
+        $('#comment-body').empty();
+        let id = [[${id}]];
+        showDetail(id);
+        showComment(id);
+    })
+
+    function writeComment(){
+        let articleId =[[${id}]];
+        let context = $('#writeComment').val();
+
+        if(isValidId(articleId) === false){
+            return;
+        }
+
+        if(isValidContent(context)=== false){
+            return;
+        }
+
+        let data = {'articleId': articleId, 'context' : context};
+
+        $.ajax({
+            type: "POST",
+            url: "/api/comments",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function(response) {
+                alert('댓글이 작성되었어요!');
+                window.location.reload();
+            }
+        });
+    }
+
+    function showDetail(id) {
+        let username = [[${username}]];
+        if (isValidId(id)=== false) {
+            return ;
+        }
+        $.ajax({
+            type: "GET",
+            url: `/api/articles/${id}`,
+            success: function (response) {
+                for (let i = 0; i < response.length; i++) {
+                    let article = response[i];
+                    let id = article['id'];
+                    let title = article['title'];
+                    let writer = article['writerName'];
+                    let context = article['context'];
+                    let tempDate = article['createdDate'];
+                    addDetail(id, title, writer, context, tempDate, username);
+                }
+            }
+        })
+    }
+
+    function addDetail(id, title, writer, context, tempDate, username){
+        let status = "";
+        if(writer !== username){
+            status = "hide";
+        }
+        let tempHtml = `<div class="modal-header">
+            <h5 for="writeTitle" class="col-sm-1 modal-text">💡 제목 </h5>
+                <h5 class="col-sm-11">${title}</h5>
+                </div>
+        <div class="modal-body" id="modalBody">
+            <div class="modalcontenttext">작성자 : ${writer} </div>
+            <div class="modalcontenttext">날짜   : ${tempDate}</div>
+            <div>내용 </div>
+            <div class="contextbox">${context}</div>
+        </div>
+        <div class="modal-footer" id="modal-footer">
+            <button type="button" class="btn btn-primary btn_save ${status}" onclick="notYet()">수정하기</button>
+            <button type="button" class="btn btn-primary btn_save ${status}" onclick="deletePost(${id})">삭제하기</button>
+        </div>`
+
+
+
+        $('#content-card').append(tempHtml);
+    }
+
+    function showComment(id){
+        let username = [[${username}]];
+        if (isValidId(id)=== false) {
+            return ;
+        }
+        let articleId = id;
+
+        $.ajax({
+            type: "GET",
+            url: `/api/comments/${articleId}`,
+            success: function (response) {
+                for (let i = 0; i < response.length; i++) {
+                    let comment = response[i];
+                    let commentId = comment['id'];
+                    let context = comment['context'];
+                    let createdDate = comment['createdDate'];
+                    let commentWriter = comment['commentWriter'];
+                    addComments(commentId, context, createdDate, commentWriter, username);
+                }
+            }
+        })
+    }
+
+    function addComments(commentId, context, createdDate, commentWriter, username){
+        let status ="";
+        if (commentWriter !== username){
+            status = "hide";
+        };
+        let tempHtml = `<div class="comment-line-form">
+                <span for="writtenComment" class="col-sm-1 comment-writer">${commentWriter}</span>
+                <span class="col-sm-7 comment-line" id="${commentId}-comment-context">${context}</span>
+                <input type="text" class="col-sm-7 comment-line comment-input ${status}" id="${commentId}-comment-input" placeholder="${context}">
+                <span class="col-sm-2 comment-time">${createdDate}</span>
+                <span class="col-sm-1 comment-btn">
+                    <button class="${status}" id="${commentId}-update-try-btn" onclick="updateCommentTry(${commentId})">수정</button>
+                    <button class="${status}" id="${commentId}-delete-btn" onclick="deleteComment(${commentId})" >삭제</button>
+                    <button class="${status} comment-input" id="${commentId}-cancel-btn" onclick="updateCommentTry(${commentId})">취소</button>
+                    <button class="${status} comment-input" id="${commentId}-update-btn" onclick="updateComment(${commentId})">등록</button>
+
+                </span>
+            </div>
+            <hr color="grey">`
+
+        $('#comment-body').append(tempHtml);
+    }
+
+    function deletePost(id){
+        if(confirm("정말 삭제하시겠어요?")== true){
+            $.ajax({
+                type: "DELETE",
+                url: `/api/articles/${id}`,
+                data: {'id': id},
+                success: function (response) {
+                    alert('게시글이 삭제 되었어요.')
+                    window.location.href='/';
+                }
+            })
+        }else{
+            return false;
+        }
+    }
+
+    function deleteComment(commentId){
+        if(confirm("정말 삭제하시겠어요?")==true){
+            $.ajax({
+                type: "DELETE",
+                url: `/api/comments/${commentId}`,
+                data: {'id': commentId},
+                success: function (response) {
+                    alert('댓글이 삭제 되었어요.')
+                    window.location.reload();
+                }
+            })
+        } else {
+            return false;
+        }
+    }
+
+
+    function updateComment(commentId){
+        let context = $(`#${commentId}-comment-input`).val()
+        if(isValidContent(context)=== false){
+            return;
+        }
+
+        let data = {'context':context}
+
+        $.ajax({
+            type: "PUT",
+            url: `/api/comments/${commentId}`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                alert('댓글이 수정되었어요.')
+                window.location.reload();
+            }
+        })
+    }
+
+    function updateCommentTry(commentId){
+        if ($(`#${commentId}-comment-input`).css("display") == "none") {
+            $(`#${commentId}-comment-input`).show()
+            $(`#${commentId}-cancel-btn`).show()
+            $(`#${commentId}-update-btn`).show()
+            $(`#${commentId}-comment-context`).hide();
+            $(`#${commentId}-update-try-btn`).hide();
+            $(`#${commentId}-delete-btn`).hide();
+        }
+        else{
+            $(`#${commentId}-comment-input`).hide()
+            $(`#${commentId}-cancel-btn`).hide()
+            $(`#${commentId}-update-btn`).hide()
+            $(`#${commentId}-comment-context`).show();
+            $(`#${commentId}-update-try-btn`).show();
+            $(`#${commentId}-delete-btn`).show();
+        }
+    }
+
+
+
+</script>
+<body class="background">
+    <div class="top">
+        <button class="btn-go-home" onclick=location.href="/">
+            <i class="fa fa-arrow-left fa-2x" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="content-card" id="content-card">
+        <div class="modal-header">
+            <h5 for="writeTitle" class="col-sm-1 modal-text">💡 제목 </h5>
+            <div class="col-sm-11">
+            제목 들어가는 곳</span>
+            </div>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <div class="modalcontenttext">작성자</div>
+            <div class="modalcontenttext">날짜</div>
+            <br>
+            <div>내용 </div>
+            <div class="contextbox">여기 내용 들어간다아아아아아아아아</div>
+        </div>
+        <div class="modal-footer" id="modal-footer">
+            <button type="button" class="btn btn-primary btn_save" onclick="writePost()">수정하기</button>
+            <button type="button" class="btn btn-primary btn_save" onclick="writePost()">삭제하기</button>
+        </div>
+    </div>
+
+
+<!--    댓글 작성 & 목록-->
+    <div class="comments-card">
+        <div class="modal-header">
+            <div for="writeComment" class="col-sm-1 modal-text">🗣 <span th:text="${username}"></span></div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="writeComment" placeholder="댓글을 입력하세요">
+            </div>
+            <div class="col-sm-1 btn-comment-send" onclick="writeComment()">
+                <i class="fa fa-paper-plane fa-lg" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="modal-body" id="comment-body">
+            <span for="writtenComment" class="col-sm-1 comment-writer">김자바</span>
+            <span id="comment-context" class="col-sm-8 comment-line">너무 좋은 내용이네요!</span>
+            <input type="text" class="col-sm-7 comment-line" id="comment-input" placeholder="${context}">
+            <span class="col-sm-2 comment-time">22.02.22</span>
+            <span class="col-sm-1 comment-btn">
+                    <button id="btn-comment-update" class="${status}" onclick="updateCommentTry()">수정</button>
+                    <button id="btn-comment-delete" class="${status}" onclick="" >삭제</button>
+                <button class="${status}" id="btn-comment-update-done">등록</button>
+            </span>
+        </div>
+    </div>
+
+
+
+</body>
+</html>

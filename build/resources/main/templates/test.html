@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>테스트</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+
+        const element = document.getElementById("hello");
+        element.style.visibility="hidden"
+
+        if(true){
+            statues = "visibility : hidden"
+        }
+
+        function hideShow(){
+            if ($("#hello").css("display") == "none") {
+                $("#hello").show()
+                $("#hey").show()
+                $("#A").show();
+                $("#hi").hide();
+                $("#ho").hide();
+                $("#ctrbtn").hide()
+            }
+            else{
+                $("#hello").hide();
+                $("#hey").hide();
+                $("#A").hide();
+                $("#hi").show();
+                $("#ho").show();
+                $("#ctrbtn").show()
+
+            }
+        }
+
+
+    </script>
+    <style>
+        .hello {
+            width: 100px;
+            height: 80px;
+            background-color: green;
+            display: none;
+        }
+        .hi{
+            width:100px;
+            height:80px;
+            background-color: red;
+        }
+
+
+
+    </style>
+</head>
+<body>
+    <div id="hello" class="hello">
+        hello
+    </div>
+
+    <div id="hi" class="hi">
+        hi
+    </div>
+
+    <div id="hey" class="hello">
+        hey
+    </div>
+
+    <div id="ho" class="hi">
+        ho
+    </div>
+
+    <button id="ctrbtn" onclick="hideShow()" class="hi">
+        Controller
+    </button>
+
+    <button id="A" onclick="hideShow()" class="hello">
+        AnotherOne
+    </button>
+
+</body>
+</html>
